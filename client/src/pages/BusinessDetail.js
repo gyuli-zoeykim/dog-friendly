@@ -1,7 +1,19 @@
-import React from 'react';
+import './BusinessDetail.css';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-const BusinessDetail = ({ business, handleGetDirectionsClick }) => {
-  const { name, rating, review_count, location, image_url, hours } = business;
+const BusinessDetail = ({
+  business,
+  handleGetDirectionsClick,
+  bookmark,
+  saveBookmark,
+  deleteBookmark,
+  formatNumber,
+}) => {
+  const { id, name, rating, review_count, location, image_url, hours } =
+    business;
+  const navigate = useNavigate();
+  const locate = useLocation();
+  const foundId = bookmark.find((number) => number === id);
   const renderHours = () => {
     if (hours && hours[0] && hours[0].open) {
       const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -42,14 +54,28 @@ const BusinessDetail = ({ business, handleGetDirectionsClick }) => {
     return null;
   };
 
+  const handleBackClick = () => {
+    if (locate.pathname.includes('/search-results')) {
+      navigate('/search-results');
+    } else if (locate.pathname.includes('/bookmark')) {
+      navigate('/bookmark');
+    }
+  };
+
   return (
     <div>
       <h2>{name}</h2>
-      <div>
+      {hours[0].is_open_now ? <p>Open</p> : <p>Closed</p>}
+      <div
+        onClick={
+          foundId === undefined
+            ? () => saveBookmark(id)
+            : () => deleteBookmark(id)
+        }>
         <img src={image_url} alt={name} width="50" height="50" />
       </div>
       <p>
-        Rating: {rating} ({review_count} reviews)
+        Rating: {rating} ({formatNumber(review_count)})
       </p>
       <p>
         {location.address1}, {location.city}, {location.state}{' '}
@@ -59,6 +85,7 @@ const BusinessDetail = ({ business, handleGetDirectionsClick }) => {
         <h3>Hours of Operation</h3>
         {renderHours()}
       </div>
+      <button onClick={handleBackClick}>Back</button>
       <button onClick={() => handleGetDirectionsClick(business)}>
         Get Directions
       </button>

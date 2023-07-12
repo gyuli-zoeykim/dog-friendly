@@ -21,6 +21,7 @@ app.get('/api/key', (req, res) => {
   res.json({ apiKey: process.env.GOOGLE_APIKEY });
 });
 
+// search
 app.get('/api/businesses', async (req, res) => {
   try {
     const { address } = req.query;
@@ -87,6 +88,111 @@ app.get('/api/businesses/:id', async (req, res) => {
   } catch (error) {
     console.log('Error:', error);
     res.status(500).json({ error: 'Failed to fetch business details' });
+  }
+});
+
+// bookmark
+app.get('/api/bookmarks', async (req, res) => {
+  try {
+    const sql = `
+      select "placeId"
+        from "bookmarks"
+    `;
+    const result = await db.query(sql);
+    const placeId = result.rows;
+    const newPlaceId = placeId.map((place) => place.placeId);
+    res.json(newPlaceId);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'an unexpected error occurred' });
+  }
+});
+
+app.post('/api/bookmarks', async (req, res) => {
+  const { placeId } = req.body;
+  console.log(placeId);
+  try {
+    const checkPlaceQuery = `
+      SELECT *
+      FROM "places"
+      WHERE "placeId" = $1
+    `;
+    const checkPlaceValues = [placeId];
+
+    const placeResult = await db.query(checkPlaceQuery, checkPlaceValues);
+    let place;
+
+    if (placeResult.rows.length === 0) {
+      const placeInfo = await fetch(
+        `https://api.yelp.com/v3/businesses/${placeId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.YELP_APIKEY}`,
+          },
+        }
+      );
+      const res = await placeInfo.json();
+      console.log('res', res);
+
+      const insertPlaceQuery = `
+        INSERT INTO "places" ("placeId", "placeName", "title", "latitude", "longitude", "address")
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING "placeId"
+      `;
+      const insertPlaceValues = [
+        res.id,
+        res.name,
+        res.categories[0].title,
+        res.coordinates.latitude,
+        res.coordinates.longitude,
+        `${res.location.city}, ${res.location.state}`,
+      ];
+
+      const insertPlaceResult = await db.query(
+        insertPlaceQuery,
+        insertPlaceValues
+      );
+      place = insertPlaceResult.rows[0].placeId;
+    } else {
+      place = placeResult.rows[0].placeId;
+    }
+
+    const insertBookmarkQuery = `
+      INSERT INTO "bookmarks" ("placeId")
+      VALUES ($1)
+      RETURNING *
+    `;
+    const insertBookmarkValues = [place];
+
+    const bookmarkResult = await db.query(
+      insertBookmarkQuery,
+      insertBookmarkValues
+    );
+    const bookmark = bookmarkResult.rows[0];
+
+    res.json(bookmark);
+  } catch (error) {
+    console.error('Error saving bookmark:', error);
+    res.status(500).json({ error: 'Failed to save bookmark' });
+  }
+});
+
+app.delete('/api/bookmarks/:placeId', async (req, res) => {
+  const { placeId } = req.params;
+
+  try {
+    const query = `
+      DELETE FROM "bookmarks"
+      WHERE "placeId" = $1
+    `;
+    const values = [placeId];
+
+    await db.query(query, values);
+
+    res.status(200).json({ message: 'Bookmark removed' });
+  } catch (error) {
+    console.error('Error removing bookmark:', error);
+    res.status(500).json({ error: 'Failed to remove bookmark' });
   }
 });
 

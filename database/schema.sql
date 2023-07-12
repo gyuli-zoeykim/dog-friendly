@@ -6,13 +6,6 @@ drop schema "public" cascade;
 
 create schema "public";
 
--- create table "public"."users" (
---     "userId"    serial,
---     "username"  text not null,
---     "email"     text not null,
---     primary key ("userId")
--- );
-
 create table "public"."places" (
     "placeId"   text,
     "placeName"      text not null,
@@ -30,6 +23,5 @@ create table "public"."bookmarks" (
     "createdAt"  timestamptz(6) not null default now(),
     "updatedAt"  timestamptz(6) not null default now(),
     primary key ("bookmarkId"),
-    -- foreign key ("userId") references "users"("userId"),
     foreign key ("placeId") references "places"("placeId")
 );

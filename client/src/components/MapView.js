@@ -3,7 +3,16 @@ import { GoogleMap, Marker } from '@react-google-maps/api';
 import BusinessListItem from './BusinessListItem';
 import BusinessModal from './BusinessModal';
 
-const MapView = ({ businesses, mapCenter, handleItemClick }) => {
+const MapView = ({
+  businesses,
+  mapCenter,
+  handleItemClick,
+  saveBookmark,
+  deleteBookmark,
+  bookmark,
+  formatNumber,
+  useCustomMarker,
+}) => {
   const mapStyles = {
     height: '400px',
     width: '100%',
@@ -15,23 +24,23 @@ const MapView = ({ businesses, mapCenter, handleItemClick }) => {
 
   const [selectedBusiness, setSelectedBusiness] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [map, setMap] = useState(null);
+  const [googleMap, setGoogleMap] = useState(null);
 
   const handleMarkerClick = (business) => {
     setSelectedBusiness(business);
     setIsModalOpen(true);
 
-    if (map) {
+    if (googleMap) {
       const markerPosition = {
         lat: parseFloat(business.coordinates.latitude),
         lng: parseFloat(business.coordinates.longitude),
       };
-      map.panTo(markerPosition);
+      googleMap.panTo(markerPosition);
     }
   };
 
   const handleMapLoad = (mapInstance) => {
-    setMap(mapInstance);
+    setGoogleMap(mapInstance);
   };
 
   const handleCloseModal = () => {
@@ -55,6 +64,14 @@ const MapView = ({ businesses, mapCenter, handleItemClick }) => {
               lng: parseFloat(business.coordinates.longitude),
             }}
             onClick={() => handleMarkerClick(business)}
+            icon={
+              useCustomMarker
+                ? {
+                    url: 'https://assets.pokemon.com/assets/cms2/img/pokedex/full/004.png',
+                    scaledSize: new window.google.maps.Size(40, 40),
+                  }
+                : undefined
+            }
           />
         ))}
       </GoogleMap>
@@ -64,6 +81,10 @@ const MapView = ({ businesses, mapCenter, handleItemClick }) => {
           <BusinessListItem
             business={selectedBusiness}
             handleItemClick={() => handleItemClick(selectedBusiness)}
+            saveBookmark={saveBookmark}
+            deleteBookmark={deleteBookmark}
+            bookmark={bookmark}
+            formatNumber={formatNumber}
           />
           <button onClick={() => handleItemClick(selectedBusiness)}>
             View Details
