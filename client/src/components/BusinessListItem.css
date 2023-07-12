@@ -1,0 +1,71 @@
+.search-result-list {
+  list-style-type: none;
+  display: flex;
+  width: 345px;
+  height: 100px;
+  margin-bottom: 15px;
+}
+
+.img-bookmark {
+  width: 100px;
+  position: relative;
+  background-color: yellow;
+}
+
+.bookmark-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.modal {
+  position: absolute;
+  width: 230px;
+  height: 120px;
+  background-color: white;
+}
+
+.description {
+  flex: 1;
+  background-color: white;
+}
+
+.description-inner {
+  padding: 5px;
+}
+
+.description-inner-row-one {
+  display: flex;
+  justify-content: space-between;
+  height: 45px;
+}
+
+h4 {
+  width: 195px;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+  font-size: 12px;
+}
+
+.review-count {
+  color: #98a3ad;
+}
+
+.star-icon {
+  width: 13px;
+  height: 13px;
+  color: #ffc368;
+}

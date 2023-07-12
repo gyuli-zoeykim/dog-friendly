@@ -1,0 +1,45 @@
+.search-result-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.filter-container {
+  width: 345px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.view-type-container {
+  width: 70px;
+  display: flex;
+  justify-content: space-between;
+}
+
+button {
+  font-size: 12px;
+  font-weight: 500;
+  height: 24px;
+  border-radius: 5px;
+  border: 1px solid #98a3ad;
+  color: #98a3ad;
+}
+
+ul {
+  padding: 0;
+}
+
+.view {
+  width: 34px;
+}
+
+.filter.open,
+button.active {
+  background-color: #25807a;
+  color: white;
+  border: none;
+}
+
+.map-view-container {
+  width: 100%;
+}
